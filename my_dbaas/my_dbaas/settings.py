@@ -39,11 +39,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "api",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -126,3 +128,21 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Cấu hình CORS
+# Cho phép tất cả các trang web khác gọi vào API (Dùng cho lúc đang phát triển)
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Cho phép gửi kèm Cookie (session đăng nhập) qua request
+CORS_ALLOW_CREDENTIALS = True
+
+# Tạm thời tắt CSRF cho API để dễ test Frontend đơn giản (Chỉ dùng khi học)
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:5500", "http://localhost:5500"]
+
+
+DBAAS_ADMIN_CONFIG = {
+    "HOST": "localhost",
+    "USER": "root",
+    "PASSWORD": "12345678",
+    "PORT": 3306,
+}
