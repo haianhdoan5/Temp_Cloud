@@ -25,10 +25,13 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = Users
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
 
 # View Đăng nhập
 class LoginView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
     def post(self, request):
         serializer = UserLogin(data=request.data)
         if serializer.is_valid():

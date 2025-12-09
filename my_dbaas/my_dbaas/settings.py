@@ -58,7 +58,7 @@ ROOT_URLCONF = "my_dbaas.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR.parent / 'frontend_dbaas'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -137,7 +137,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 # Tạm thời tắt CSRF cho API để dễ test Frontend đơn giản (Chỉ dùng khi học)
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:5500", "http://localhost:5500"]
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:5500", "http://localhost:5500", "http://98.89.207.246:8000"]
 
 
 DBAAS_ADMIN_CONFIG = {
