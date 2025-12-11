@@ -140,7 +140,7 @@
         resultContent.innerText = "Đang xử lý, vui lòng đợi...";
 
         try {
-          const response = await fetch("http://98.89.207.246:8000/api/provision/", {
+          const response = await fetch("http://98.91.5.63:8000/api/provision/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ db_name: dbName, db_password: dbPass }),
@@ -176,7 +176,7 @@
       async function loadDatabases() {
         try {
           const response = await fetch(
-            "http://98.89.207.246:8000/api/my-databases/",
+            "http://98.91.5.63:8000/api/my-databases/",
             {
               method: "GET",
               credentials: "include",
@@ -223,7 +223,7 @@
         }
       }
 
-      // --- 4. Hàm XÓA Database (Mới) ---
+      // --- 4. Hàm XÓA Database ---
       async function deleteDatabase(id) {
         if (
           !confirm(
@@ -235,7 +235,7 @@
 
         try {
           const response = await fetch(
-            `http://98.89.207.246:8000/api/delete-database/${id}/`,
+            `http://98.91.5.63:8000/api/delete-database/${id}/`,
             {
               method: "DELETE",
               credentials: "include",
@@ -260,7 +260,6 @@
         window.location.href = "login.html";
       }
 
-      // Chạy ngay khi vào trang
       loadDatabases();
     </script>
   </body>

@@ -82,7 +82,7 @@ DATABASES = {
         "NAME": "dbaas_management",
         "USER": "admin",
         "PASSWORD": "12345678",
-        "HOST": "dbaas-service.c1uxdfdkaage.us-east-1.rds.amazonaws.com",
+        "HOST": "my-private-dbaas.c1uxdfdkaage.us-east-1.rds.amazonaws.com",
         "PORT": "3306",
     }
 }
@@ -137,11 +137,11 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 # Tạm thời tắt CSRF cho API để dễ test Frontend đơn giản (Chỉ dùng khi học)
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:5500", "http://localhost:5500", "http://98.89.207.246:8000"]
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:5500", "http://localhost:5500", "http://98.89.207.246:8000", "http://98.91.5.63:8000"]
 
 
 DBAAS_ADMIN_CONFIG = {
-    "HOST": "dbaas-service.c1uxdfdkaage.us-east-1.rds.amazonaws.com",
+    "HOST": "my-private-dbaas.c1uxdfdkaage.us-east-1.rds.amazonaws.com",
     "USER": "admin",
     "PASSWORD": "12345678",
     "PORT": 3306,
