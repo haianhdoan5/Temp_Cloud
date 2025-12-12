@@ -5,14 +5,11 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import UserDatabase
 from .serializers import Provision, UserDatabaseSerializer, UserLogin, Users
 from .utils import create_database_and_user, delete_database_from_mysql
-
-# Bỏ dòng method_decorator và csrf_exempt cũ đi, ta dùng cách mạnh hơn
-# from django.utils.decorators import method_decorator
-# from django.views.decorators.csrf import csrf_exempt
 
 
 # Bỏ qua kiểm tra CSRF cho Session
@@ -61,7 +58,7 @@ class LoginView(APIView):
 class ProvisionView(APIView):
     permission_classes = [IsAuthenticated]
 
-    authentication_classes = (CsrfExemptSessionAuthentication,)
+    authentication_classes = [JWTAuthentication]
 
     def post(self, request):
         serializer = Provision(data=request.data)
@@ -104,7 +101,9 @@ class ProvisionView(APIView):
 
 # View liệt kê các Database của user hiện tại
 class DatabaseListView(generics.ListAPIView):
-    ermission_classes = [IsAuthenticated]
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserDatabaseSerializer
 
     def get_queryset(self):
@@ -116,9 +115,7 @@ class DatabaseListView(generics.ListAPIView):
 
 class DatabaseDeleteView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = (
-        CsrfExemptSessionAuthentication,
-    )  # Tắt CSRF để test cho dễ
+    authentication_classes = [JWTAuthentication]
 
     def delete(self, request, pk):
         try:

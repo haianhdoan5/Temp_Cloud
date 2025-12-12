@@ -25,8 +25,9 @@ SECRET_KEY = "django-insecure-3pg)0gsk0&jn!0*qacz1_!=ux4oc^6d40@9^o1%cuxrnmm@+9^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*", "clouddbaas.me", "www.clouddbaas.me"]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
@@ -137,7 +138,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 # Tạm thời tắt CSRF cho API để dễ test Frontend đơn giản (Chỉ dùng khi học)
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:5500", "http://localhost:5500", "http://98.89.207.246:8000", "http://98.91.5.63:8000"]
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:5500", "http://localhost:5500", "http://98.89.207.246:8000", "http://98.91.5.63:8000", "https://clouddbaas.me", "https://www.clouddbaas.me",]
 
 
 DBAAS_ADMIN_CONFIG = {

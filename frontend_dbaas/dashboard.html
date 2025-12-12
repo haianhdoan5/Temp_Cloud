@@ -106,16 +106,22 @@
     </div>
 
     <script>
-      // --- 1. Kiểm tra đăng nhập ---
+      // --- CẤU HÌNH CHUNG ---
+      const API_BASE_URL = "https://www.clouddbaas.me"; 
+
+      // --- 1. Kiểm tra đăng nhập & Lấy Token ---
       const username = localStorage.getItem("username");
-      if (!username) {
+      // Quan trọng: Lấy token ra để dùng
+      const token = localStorage.getItem("access_token"); 
+
+      // Nếu không có token hoặc username -> Đuổi về trang login
+      if (!username || !token) {
         window.location.href = "login.html";
       } else {
-        document.getElementById("user-display").innerText =
-          "Xin chào, " + username;
+        document.getElementById("user-display").innerText = "Xin chào, " + username;
       }
 
-      // --- 2. Hàm TẠO Database (Đầy đủ) ---
+      // --- 2. Hàm TẠO Database ---
       async function createDatabase() {
         const dbNameInput = document.getElementById("db_name");
         const dbPassInput = document.getElementById("db_pass");
@@ -134,17 +140,18 @@
           return;
         }
 
-        // Hiển thị trạng thái đang xử lý...
         resultArea.classList.remove("d-none");
         resultArea.className = "alert alert-warning";
         resultContent.innerText = "Đang xử lý, vui lòng đợi...";
 
         try {
-          const response = await fetch("http://98.91.5.63:8000/api/provision/", {
+          const response = await fetch(`${API_BASE_URL}/api/provision/`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token // Gửi Token
+            },
             body: JSON.stringify({ db_name: dbName, db_password: dbPass }),
-            credentials: "include",
           });
 
           const data = await response.json();
@@ -154,16 +161,15 @@
             resultContent.innerText =
               "Thành công!\n" + JSON.stringify(data.db_info, null, 4);
 
-            // Xóa ô nhập liệu cho sạch
             dbNameInput.value = "";
             dbPassInput.value = "";
-
-            // Tải lại danh sách ngay lập tức
             loadDatabases();
           } else {
             resultArea.className = "alert alert-danger";
-            resultContent.innerText =
-              "Lỗi: " + (data.detail || JSON.stringify(data));
+            resultContent.innerText = "Lỗi: " + (data.detail || JSON.stringify(data));
+            
+            // Nếu lỗi 401 (Unauthorized) thì bắt đăng nhập lại
+            if (response.status === 401) logout();
           }
         } catch (error) {
           console.error("Lỗi:", error);
@@ -172,14 +178,29 @@
         }
       }
 
-      // --- 3. Hàm LẤY DANH SÁCH (Đầy đủ) ---
+      // --- 3. Hàm LẤY DANH SÁCH ---
       async function loadDatabases() {
+
+	// (Đảm bảo 'access_token' là tên key bạn dùng lúc lưu khi đăng nhập)
+    	const token = localStorage.getItem("access_token"); 
+
+    	console.log("Token gửi đi:", token); 
+
+    	if (!token) {
+          console.error("Không tìm thấy token! Người dùng chưa đăng nhập.");
+          // Có thể redirect về trang login luôn nếu muốn
+          return; 
+   	}
+
         try {
           const response = await fetch(
-            "http://98.91.5.63:8000/api/my-databases/",
+            `${API_BASE_URL}/api/my-databases/`,
             {
               method: "GET",
-              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token // <--- QUAN TRỌNG: Gửi Token
+              }
             }
           );
 
@@ -187,22 +208,24 @@
           tbody.innerHTML = "";
 
           if (!response.ok) {
-            tbody.innerHTML =
-              '<tr><td colspan="5" class="text-danger text-center">Lỗi khi tải danh sách.</td></tr>';
+            if (response.status === 401) {
+                alert("Phiên đăng nhập hết hạn!");
+                logout();
+                return;
+            }
+            tbody.innerHTML = '<tr><td colspan="5" class="text-danger text-center">Lỗi khi tải danh sách.</td></tr>';
             return;
           }
 
           const data = await response.json();
 
           if (data.length === 0) {
-            tbody.innerHTML =
-              '<tr><td colspan="5" class="text-center text-muted py-3">Bạn chưa tạo Database nào.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Bạn chưa tạo Database nào.</td></tr>';
             return;
           }
 
           data.forEach((db) => {
             const date = new Date(db.created_at).toLocaleString("vi-VN");
-
             const row = `
                     <tr>
                         <td class="fw-bold text-primary align-middle">${db.db_name}</td>
@@ -225,26 +248,23 @@
 
       // --- 4. Hàm XÓA Database ---
       async function deleteDatabase(id) {
-        if (
-          !confirm(
-            "CẢNH BÁO: Bạn có chắc chắn muốn xóa Database này không?\nDữ liệu sẽ bị mất vĩnh viễn!"
-          )
-        ) {
-          return;
-        }
+        if (!confirm("CẢNH BÁO: Dữ liệu sẽ bị mất vĩnh viễn! Bạn chắc chứ?")) return;
 
         try {
           const response = await fetch(
-            `http://98.91.5.63:8000/api/delete-database/${id}/`,
+            `${API_BASE_URL}/api/delete-database/${id}/`,
             {
               method: "DELETE",
-              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token // <--- QUAN TRỌNG: Gửi Token
+              }
             }
           );
 
           if (response.ok) {
             alert("Đã xóa thành công!");
-            loadDatabases(); // Tải lại danh sách
+            loadDatabases();
           } else {
             const data = await response.json();
             alert("Lỗi: " + (data.error || "Không thể xóa"));
@@ -256,10 +276,14 @@
 
       // --- 5. Hàm Đăng xuất ---
       function logout() {
+        // Xóa sạch cả username và token
         localStorage.removeItem("username");
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
         window.location.href = "login.html";
       }
 
+      // Chạy hàm tải danh sách khi vừa vào trang
       loadDatabases();
     </script>
   </body>

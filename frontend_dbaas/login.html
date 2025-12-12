@@ -45,15 +45,22 @@
     </div>
 
     <script>
-      const API_BASE_URL = "http://98.91.5.63:8000";
+      // Cấu hình đường dẫn gốc
+      const API_BASE_URL = "https://www.clouddbaas.me";
+
       async function handleLogin() {
         const u = document.getElementById("username").value;
         const p = document.getElementById("password").value;
         const msg = document.getElementById("message");
 
+        if (!u || !p) {
+            msg.innerText = "Vui lòng nhập đầy đủ thông tin!";
+            return;
+        }
+
         try {
-          // Gọi API đăng nhập của Django
-          const response = await fetch("http://98.91.5.63:8000/api/login/", {
+          // 1. Gọi vào API lấy Token (/api/token/)
+          const response = await fetch(`${API_BASE_URL}/api/token/`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -64,12 +71,16 @@
           const data = await response.json();
 
           if (response.ok) {
-            // Lưu thông tin user tạm vào bộ nhớ trình duyệt
-            localStorage.setItem("username", data.username);
-            // Chuyển hướng sang trang Dashboard (
+            // --- LƯU TOKEN ---
+            // Phải lưu cái này thì Dashboard mới cho vào
+            localStorage.setItem("access_token", data.access);
+            localStorage.setItem("refresh_token", data.refresh);
+            localStorage.setItem("username", u); // Lưu thêm tên để hiển thị
+
+            // Chuyển hướng thành công
             window.location.href = "dashboard.html";
           } else {
-            msg.innerText = data.error || "Đăng nhập thất bại";
+            msg.innerText = "Sai tài khoản hoặc mật khẩu!";
           }
         } catch (error) {
           console.error(error);
